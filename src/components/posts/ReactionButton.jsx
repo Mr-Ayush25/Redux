@@ -23,7 +23,7 @@ const ReactionButtons = ({ post }) => {
           () => dispatch(reactionAdded({ postId: post.id, reaction: name })) // Dispatch the reactionAdded action with the postId and reaction name
         }
       >
-        {emoji} {post.reactions[name]}{" "}
+        {emoji} {post.reactions[name]}
         {/* Display the emoji and the count for each reaction */}
       </button>
     );

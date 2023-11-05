@@ -1,36 +1,48 @@
-import { useSelector } from "react-redux"; // Import the useSelector hook from react-redux
-import { selectAllPosts } from "../../store/Controllers/postSlice"; // Import the selectAllPosts selector from the postSlice
-import PostAuthor from "./PostAuthor"; // Import the PostAuthor component
-import TimeAgo from "./TimeAgo"; // Import the TimeAgo component
-import ReactionButtons from "./ReactionButton"; // Import the ReactionButtons component
+import { useSelector, useDispatch } from "react-redux"; // Import the useSelector hook from react-redux
+import {
+  selectAllPosts,
+  getPostsStatus,
+  getPostsError,
+  fetchPosts,
+} from "../../store/Controllers/postSlice"; // Import the selectAllPosts selector from the postSlice
+
+import { useEffect } from "react";
+import PostExcerpt from "./PostExcerpt";
 
 const PostsList = () => {
+  const dispatch = useDispatch();
+
   const posts = useSelector(selectAllPosts); // Select all posts from the Redux store
+  const postStatus = useSelector(getPostsStatus); // Get the state of postfetching
+  const error = useSelector(getPostsError); //get the error
 
-  const orderedPosts = posts
-    .slice()
-    .sort((a, b) => b.date.localeCompare(a.date)); // Sort posts by date in descending order
+  // To fetch the data
+  useEffect(() => {
+    if (postStatus === "idle") {
+      dispatch(fetchPosts());
+    }
+    // console.log("called");
+  }, [postStatus, dispatch]);
 
-  const renderedPosts = orderedPosts.map((post) => (
-    <article key={post.id}>
-      <h3>{post.title}</h3> {/* Display the post title */}
-      <p>{post.content.substring(0, 100)}</p>{" "}
-      {/* Display the first 100 characters of the post content */}
-      <p className="postCredit">
-        <PostAuthor userId={post.userId} />{" "}
-        {/* Render the author using the PostAuthor component */}
-        <TimeAgo timestamp={post.date} />{" "}
-        {/* Render the timestamp using the TimeAgo component */}
-      </p>
-      <ReactionButtons post={post} />{" "}
-      {/* Render the reaction buttons for the post using the ReactionButtons component */}
-    </article>
-  ));
+  // Conditional rendering of data
+  let content;
+  if (postStatus === "loading") {
+    content = <p>Loading ..</p>;
+  } else if (postStatus === "succeeded") {
+    const orderedPosts = posts
+      .slice()
+      .sort((a, b) => b.date.localeCompare(a.date)); // Sort posts by date in descending order
+    content = orderedPosts.map((post) => (
+      <PostExcerpt key={post.id} post={post} />
+    ));
+  } else if (postStatus === "failed") {
+    content = <p>{error}</p>;
+  }
 
   return (
     <section>
       <h2>Posts</h2>
-      {renderedPosts} {/* Render the list of posts */}
+      {content} {/* Render the list of posts */}
     </section>
   );
 };

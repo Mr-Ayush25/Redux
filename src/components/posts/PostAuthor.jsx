@@ -4,7 +4,7 @@ import { selectAllUsers } from "../../store/Controllers/userSlice"; // Import th
 const PostAuthor = ({ userId }) => {
   const users = useSelector(selectAllUsers); // Select all users from the Redux store
 
-  const author = users.find((user) => user.id === userId); // Find the user with the matching userId
+  const author = users.find((user) => user.id == userId); // Find the user with the matching userId
 
   return <span>by {author ? author.name : "Unknown author"}</span>; // Render the author's name or "Unknown author" if no matching user is found
 };
